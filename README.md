@@ -290,4 +290,97 @@ wtimeout is write timout
 
 will import tv-shows.json data into `moviesDatabase` database and `moviesCollection` collection. `--jsonArray` specifies that it's bulk insert of documents. `--drop` will drop an existing `moviesCollection` collection, create a new `moviesCollection` and insert in it, else data will be appended in `moviesCollection`.
 
- # Read opertions
+# Read opertions
+## filter
+`find()` and `findOne()`
+`findOne()` returns 1 document.`find()` returns cursor with multiple documents.
+
+`db.series.find({name:"Reacher"})`
+will return all documents where name is exactly `Reacher`.
+
+### operators
+`db.series.find({runtime:{$lt:90}})`
+`$lt` will return where runtime is less than 90.
+
+1. `eq`/`ne` - equals to/ not equals to
+2. `gt` `gte` - greater than/ greater than or equals to
+3. `lt` `lte`- lesser than / lesser than or equals to
+4. `in` `nin`- matches value that is in an array / matches value that is not in an array
+5. `exists` - check if key exists in a document
+6. `type` - specifies the type of the key
+7. `regex` - search by regex
+8. `expr` - compare key with another key in a document
+
+`db.series.find({"rating.average":{$gte:7}})`
+will fetch all shows where rating is >= 7. Rating is a nested documented as
+```
+{
+  ...
+  rating:{
+    avarage: 8.0
+  }
+}
+```
+
+`db.series.find({"genres":"Thriller"})`
+will fetch all shows where `genres` is an array and `Thriller` is an item in it.
+
+`db.series.find({"genres":["Thriller"]})`
+
+`db.series.find({"genres": {$in: ["Thriller","Action"]}})`
+will fetch all shows where `genres` is an array and has `Thriller` or `Action` in it.
+
+`db.series.find({$or:[ {"rating.average" : {$gt: 9}} , {"genres":{$in:["Thriller","Action"]}} ]})`
+fetch all shows where rating is above 9 or genre is in Thriller,Action 
+
+`db.series.find({$and:[ {"rating.average" : {$gt: 9}} , {"genres":{$in:["Thriller","Action"]}} ]})`
+
+fetch all shows where rating is above 9 AND genre is in Thriller,Action
+
+`db.users.find({email:{$exists: true}})` 
+fetch users where key email exists in the document.
+
+`db.users.find({email:{$exists: true, $ne:null}})` 
+fetch users where key email exists in the document and is not null.
+
+`db.users.find({email:{$exists: true, $type: "string"}})` 
+fetch users where key email exists in the document and is a string.
+
+`db.series.find({summary: {$regex: /musical/ }})`
+
+Lets say sales collection is as follows
+```
+[
+  {
+    volume: 200,
+    target: 150
+  },
+  {
+    volume: 200,
+    target: 250
+  }
+]
+```
+To get all documents where volume > target, use `expr`
+`db.sales.find({ $expr : { $gt: ["$volume","$target"] } })`
+
+### Querying Arrays
+```
+[{
+  ...
+  genres:[
+    {
+      title: "Thriller"
+    },
+    {
+      title: "Drama"
+    }
+  ]
+}]
+```
+to get all documents where genre is Thriller
+`db.movies.find( { "genres.title":"Thriller" } )`
+
+`$size` - array size
+`db.series.find({genres:{$size: 3}})`
+will fetch all documents where genres has 3 elements
