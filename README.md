@@ -1,16 +1,19 @@
 ## Open terminal and type
+
 `mongosh` to start mongo
 
 ## DB operations
+
 `show dbs` will list all the database
 
 `use shop` will select db shop. It will create a new one if not already present.
 
 `db.dropDatabase()` will drop the current database
 
-`db.books.drop()` will drop the collection books 
+`db.books.drop()` will drop the collection books
 
 ## to insert a document in a collection
+
 `db.products.insertOne({ name:"book",price:299})`
 this will create `products` collection if not already created and insert a document in it.
 
@@ -18,8 +21,10 @@ to insert many documents at once
 `db.products.insertMany([{ name:"book",price:299},{ name:"book",price:399}])`
 
 ## to list all documents
+
 `db.products.find()`
 will list all the documents present in `products`
+
 ```
 [
   {
@@ -31,6 +36,7 @@ will list all the documents present in `products`
 ```
 
 ## to delete one record
+
 `db.flightData.deleteOne({departureAirport:"TXL"})`
 this will delete the first document where departureAirport is TXL.
 
@@ -38,6 +44,7 @@ this will delete the first document where departureAirport is TXL.
 this will delete all records where marker value is toDelete.
 
 ## to update one record
+
 `dv.flightData.updateOne({distance:12000},{$set:{marker:"delete"}})`
 mongdb will update the value of `marker` to `"delete"`. If `marker` field is not present, it will create a new one.
 
@@ -45,6 +52,7 @@ mongdb will update the value of `marker` to `"delete"`. If `marker` field is not
 To update many records. Empty `{}` means no filter was passes, and every document will be updated.
 
 ## Using condition in filter
+
 `db.books.find({ price : { $gt : 200 }})`
 will fetch books where price is greater than 200
 
@@ -52,6 +60,7 @@ will fetch books where price is greater than 200
 will give boooks where `tags` have `fiction` as element in it. `tags` is an array of string.
 
 Lets say we have a nested document
+
 ```
 {
   book:"Harry Potter",
@@ -62,24 +71,31 @@ Lets say we have a nested document
   }
 }
 ```
+
 to filter by nested field condition status
 `db.books.find({"condition.status:"good"})`
 
 ## Projecting data
+
 ` db.books.find({},{_id:0, book:1, price:1})`
-this will return documents with only book and price key, _id and all other keys will be excluded.
+this will return documents with only book and price key, \_id and all other keys will be excluded.
 
 ## updating nested data
+
 `db.books.updateOne({book:"Java"},{$set:{tags:["Computer Science", "Technology"]}})`
 this will add a key `tags` which is an array of string
 
 ## Accesing the structured data
+
 `db.books.findOne({book:"Harry Potter"}).price`
-will give price of Harry potter book price. 
+will give price of Harry potter book price.
 
 ## lookup - way of joining document
+
 Let's say there are 2 collections
+
 #### Products collection
+
 ```{
   "_id": {
     "$oid": "6534c048163f6837a491dc35"
@@ -91,6 +107,7 @@ Let's say there are 2 collections
 ```
 
 #### Orders collection
+
 ```{
   "_id": {
     "$oid": "6534c1d390b8ceeff319b31b"
@@ -109,6 +126,7 @@ Let's say there are 2 collections
 ```
 
 to get orders data with products, orders data at the same time, use $lookup
+
 ```
 db.orders.aggregate([
     {$lookup:{
@@ -121,6 +139,7 @@ db.orders.aggregate([
 ```
 
 will return
+
 ```
 [
   {
@@ -150,7 +169,9 @@ will return
 ```
 
 ## Schema validation in mongodb
+
 #### validationLevel
+
 which documents get validated?
 `strict`
 All inserts and updates are validated
@@ -158,6 +179,7 @@ All inserts and updates are validated
 All inserts are validated. Updates are only checked for documents which were valid before.
 
 ### validationAction
+
 what happens if validation fails?
 `error`
 Throws an error and deny insert/update.
@@ -165,6 +187,7 @@ Throws an error and deny insert/update.
 Log warning but allows insert/update
 
 ## Adding validation
+
 ```
 db.createCollection('posts', {
   validator: {
@@ -210,7 +233,9 @@ db.createCollection('posts', {
 ```
 
 ## Adding validation actions
+
 If the collection is already created, db admin will run the following cmd
+
 ```
 db.runCommand({
   collMod: 'posts', // collection modifier
@@ -257,41 +282,49 @@ db.runCommand({
 ```
 
 ## bulk insert
+
 when inserting in bulk with insertMany, the documents are inserted one by one. If one of the insert operation fails, the remaining documents are not inserted.
+
 ```
 db.books.insertMany([{book:"Harry Potter",{book:"Jack Reacher",{book:"Goosebumps"}}}])
 ```
 
-so if insert of `Jack Reacher` fails, `Goosebumps` will not be inserted, but `Harry Potter` insert will persist. 
+so if insert of `Jack Reacher` fails, `Goosebumps` will not be inserted, but `Harry Potter` insert will persist.
 
 This is the default behaviour called `ordered insert`. To turn it off, pass it in config
+
 ```
 db.books.insertMany(
   [{book:"Harry Potter",{book:"Jack Reacher",{book:"Goosebumps"}}}],
   {ordered: false}
   )
 ```
+
 This will make sure all the documents without any error will be inserted.
 
 ## writeConcern
+
 This deals with how the storage engine stores the data
 `db.books.insertOne({name:"Harry Potter"},{writeConcern:{w:1}})`
 
 `w:1` means storage engine waits for acknowledgement from 1 server. if `w:0`, the storage engine returns response immediately without waiting for acknowledgement from server. default is 1.
 
 `db.books.insertOne({name:"Jack Reacher"},{writeConcern:{w:1, j: false}})`
-j is journal. Journal is basically like a todo task list of server which has list of write operation it needs to perform. default is true, which means document will be written in memory, then journal  and then to the disk.
+j is journal. Journal is basically like a todo task list of server which has list of write operation it needs to perform. default is true, which means document will be written in memory, then journal and then to the disk.
 
 `db.books.insertOne({name:"Jack Reacher"},{writeConcern:{w:1, j: true, wtimeout: 1}})`
-wtimeout is write timout 
+wtimeout is write timout
 
 ## importing data
+
 `mongoimport tv-shows.json -d moviesDatabase -c moviesCollection --jsonArray --drop`
 
 will import tv-shows.json data into `moviesDatabase` database and `moviesCollection` collection. `--jsonArray` specifies that it's bulk insert of documents. `--drop` will drop an existing `moviesCollection` collection, create a new `moviesCollection` and insert in it, else data will be appended in `moviesCollection`.
 
 # Read opertions
+
 ## filter
+
 `find()` and `findOne()`
 `findOne()` returns 1 document.`find()` returns cursor with multiple documents.
 
@@ -299,6 +332,7 @@ will import tv-shows.json data into `moviesDatabase` database and `moviesCollect
 will return all documents where name is exactly `Reacher`.
 
 ### operators
+
 `db.series.find({runtime:{$lt:90}})`
 `$lt` will return where runtime is less than 90.
 
@@ -313,6 +347,7 @@ will return all documents where name is exactly `Reacher`.
 
 `db.series.find({"rating.average":{$gte:7}})`
 will fetch all shows where rating is >= 7. Rating is a nested documented as
+
 ```
 {
   ...
@@ -331,24 +366,25 @@ will fetch all shows where `genres` is an array and `Thriller` is an item in it.
 will fetch all shows where `genres` is an array and has `Thriller` or `Action` in it.
 
 `db.series.find({$or:[ {"rating.average" : {$gt: 9}} , {"genres":{$in:["Thriller","Action"]}} ]})`
-fetch all shows where rating is above 9 or genre is in Thriller,Action 
+fetch all shows where rating is above 9 or genre is in Thriller,Action
 
 `db.series.find({$and:[ {"rating.average" : {$gt: 9}} , {"genres":{$in:["Thriller","Action"]}} ]})`
 
 fetch all shows where rating is above 9 AND genre is in Thriller,Action
 
-`db.users.find({email:{$exists: true}})` 
+`db.users.find({email:{$exists: true}})`
 fetch users where key email exists in the document.
 
-`db.users.find({email:{$exists: true, $ne:null}})` 
+`db.users.find({email:{$exists: true, $ne:null}})`
 fetch users where key email exists in the document and is not null.
 
-`db.users.find({email:{$exists: true, $type: "string"}})` 
+`db.users.find({email:{$exists: true, $type: "string"}})`
 fetch users where key email exists in the document and is a string.
 
 `db.series.find({summary: {$regex: /musical/ }})`
 
 Lets say sales collection is as follows
+
 ```
 [
   {
@@ -361,10 +397,12 @@ Lets say sales collection is as follows
   }
 ]
 ```
+
 To get all documents where volume > target, use `expr`
 `db.sales.find({ $expr : { $gt: ["$volume","$target"] } })`
 
 ### Querying Arrays
+
 ```
 [{
   ...
@@ -378,9 +416,95 @@ To get all documents where volume > target, use `expr`
   ]
 }]
 ```
+
 to get all documents where genre is Thriller
 `db.movies.find( { "genres.title":"Thriller" } )`
 
 `$size` - array size
 `db.series.find({genres:{$size: 3}})`
 will fetch all documents where genres has 3 elements
+
+`$all` - exact match on array items
+`db.boxOffice.find({genres : {$all:["action","thriller"]}})`
+will fetch documents where genres have exactly `action` and `thriller` in it, irrespective of order in the array.
+
+`$elemMatch`
+
+```
+[
+  ...
+  hobbies: [
+    {
+      title:"Sketching",
+      frequency: 3
+    },
+    {
+      title:"Reading",
+      frequency: 7
+    }
+  ]
+]
+```
+
+to get document where title is `Sketching` and `frequency` is >= 3
+`db.users.find( {hobbies : { $elemMatch : {title: "Sketching", frequency : {$gte: 3}} }} )`
+
+## Cursor
+
+`find()` returns a cursor that can be used to read document one by one
+
+```
+const dbCursor = db.series.find()
+dbCursor.next()
+```
+
+will fetch document whenever `next()` is used. To iterate over the cursor
+`dbCursor.forEach(doc => printJSON(doc))`
+
+`dbCursor.hasNext()` returns true if cursor has more document, else false.
+
+### sorting data
+
+```
+[
+  {
+    ...
+    runtime:30,
+    rating:{
+      average: 7.8
+    }
+  }
+]
+```
+
+`db.movies.find().sort({"rating.average":1, runtime: -1 })`
+specify 1 to sort in ascending order, -1 to sort in descending order.
+
+### limiting data
+
+`db.movies.find().skip(10).limit(10)`
+
+will skip the first 10 docuements and fetch only 10 documents
+
+### projection of data
+
+`db.series.find({},{name:1, language:1, genres:1, rating:1, "schedule.time":1})`
+will fetch properties specified with 1. `_id` will be included by default , unless explicitly set as 0.
+
+When working with array,
+`db.series.find({genres:"Drama"},{"genres.$":1})`
+
+will return all the documents where `genres` array has `Drama` as an item, and will project `genres` with only `Drama` in it.
+
+```
+  { _id: ObjectId("6538fa32d412b575f36d313d"), genres: [ 'Drama' ] },
+  { _id: ObjectId("6538fa32d412b575f36d313e"), genres: [ 'Drama' ] },
+```
+
+`$slice` - returns specified no of items in an array
+`db.series.find({},{name:1, genres:{$slice:2}})`
+
+will return data with `genres` having only first 2 elements
+
+`db.series.find({},{name:1, genres:{$slice:[1,2]}})`
+will skip the first item and get the next 2 items.
