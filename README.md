@@ -520,6 +520,12 @@ creates index on `dob.age`. 1 means indexes are sorted in ASC order, -1 means in
 
 `db.contacts.createIndex({"dob.age": 1, gender:1})`
 
+### text index
+
+If a text index is added on a string 'This is a must have book for science fiction fans.', mongodb will store and create indexes on the words seperately, so it's easy to search by keyword. Index will be added like `must`,`have`,`book`,`science`,`fiction`,`fans`
+
+`db.books.createIndex({description:"text"})`
+
 ### drop index
 
 `db.contacts.dropIndex({"dob.age":1})`
