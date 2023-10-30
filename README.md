@@ -508,3 +508,22 @@ will return data with `genres` having only first 2 elements
 
 `db.series.find({},{name:1, genres:{$slice:[1,2]}})`
 will skip the first item and get the next 2 items.
+
+## index
+
+### create index
+
+`db.contacts.createIndex({"dob.age": 1})`
+creates index on `dob.age`. 1 means indexes are sorted in ASC order, -1 means indexes are sorted in DESC order.
+
+### compound index
+
+`db.contacts.createIndex({"dob.age": 1, gender:1})`
+
+### drop index
+
+`db.contacts.dropIndex({"dob.age":1})`
+
+### get indexes on a document
+
+`db.contacts.getIndexes()`
