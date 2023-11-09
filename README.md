@@ -509,6 +509,116 @@ will return data with `genres` having only first 2 elements
 `db.series.find({},{name:1, genres:{$slice:[1,2]}})`
 will skip the first item and get the next 2 items.
 
+## Update documents
+
+```
+db.users.updateOne( {_id: ObjectId("123wdqx")}, {
+  $set:{
+    hobbies: [
+      {title:"Sports", frequency:5},
+      {title:"Cooking", frequency:7},
+      ]
+    }
+})
+```
+
+will find a document with `id` 123wdqx and set the hobbies field to specified value.
+
+`updateMany()` will update all the documents that matches the filter.
+
+### updating many fields
+
+```
+db.users.updateOne({_id:ObjectId("213qad")},{
+  $set: {
+    age: 40, phone: 123456798
+  }
+})
+```
+
+### update value based on previous value
+
+```
+db.users.updateOne(
+  {name:"ABC"},
+  {
+    $inc: {age: 1},
+    $set: {phone: "123-456-789"}
+  }
+)
+```
+
+will increment `age` by 1 and set `phone` to specified value.
+
+### $min, $max and $mul
+
+`db.users.updateMany({name:"John"},{$min:{age: 32}})`
+
+will find the users where name is `John` and set `age` to 32 iff `age` of user is greater than 32. i.e specified value must be less than current value. 32 is specified value here. So `age` of user will only get updated when the current `age` is greater than 32 here.
+
+`db.users.updateMany({name:"John"},{$min:{age: 35}})`
+will update the age to 35 only iff specified value is greater than 35.
+
+`db.users.updateMany({name:"John"},{$min:{age: 1.1}})`
+set user `age` by multiplying it by 1.1
+
+### $unset - dropping fields from document
+
+`db.users.updateMany({isSporty: true},{$unset:{phone:""}})`
+
+this will remove `phone` field from document for users where `isSporty` is true.
+
+### $rename - renaming field
+
+`db.users.updateMany({},{$rename:{age: "totalAge"}})`
+
+will rename `age` field to `totalAge` for all users.
+
+### upsert
+
+if no document is found during update operation, mongodb can create a new document is `upsert` flag is enabled.
+`db.updateOne({name:"John"},{ $set:{age: 25, hobbies:[{title:"reading", frequency: 7}]}},{upsert:true})`
+
+we are passing `upsert` as true, which will make mongodb create a new document if no document with `name`="John" was found.
+
+### updating matched array elements
+
+update document where a person has a hobby of sports with frequency >=3
+
+```
+db.users.updateMany({hobbies:{$elemMatch:{ title : "sports". frequency:{$gte:3} }}},
+{
+  $set:{ "hobbies.$.highFrequency": true }
+})
+```
+
+this will find the document where `hobbies` has an item where `title` is sports and `frequency`>=3, and for that matched element of `hobbies`, add a new field `highFrequency` with value true;
+
+### $[] - update all elements of an array
+
+`db.users.updateMany({age:{$gte: 25}}, { $inc: {"hobbies.$[].frequency": -1} })`
+will decrement the `frequency` of every item in `hobbies` array.
+
+### $push - add element to array
+
+`db.users.updateOne({name:"John"}, {$push:{hobbies: {title:"cooking", frequency:7}}})`
+will push `{title:"cooking", frequency:7}` into `hobbies` array
+
+### $addToSet - add element to array only if unique
+
+`$addToSet` is similar to `$push`, but will not add element if it already exists.
+
+### $pull - remove element to array
+
+`db.users.updateOne({name:"John"},{$pull:{hobbies:{title:"Hiking"}}})`
+will remove item from `hobbies` where `title` was `Hiking`
+
+### $pop - remove array element
+
+`db.users.updateOne({name:"John"},{$pop:{hobbies: 1}})`
+
+will remove last element from `hobbies`. If `hobbies: -1`, will remove first element from array `hobbies`
+
 ## index
 
 ### create index
