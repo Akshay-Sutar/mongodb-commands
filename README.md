@@ -1,6 +1,5 @@
-## Open terminal and type
-
-`mongosh` to start mongo
+## Starting mongo server
+open terminal and type `mongosh` to start mongo
 
 ## DB operations
 
@@ -12,7 +11,9 @@
 
 `db.books.drop()` will drop the collection books
 
-## to insert a document in a collection
+`db.dropDatabase()` will drop the database.
+
+## To insert a document in a collection
 
 `db.products.insertOne({ name:"book",price:299})`
 this will create `products` collection if not already created and insert a document in it.
@@ -20,7 +21,7 @@ this will create `products` collection if not already created and insert a docum
 to insert many documents at once
 `db.products.insertMany([{ name:"book",price:299},{ name:"book",price:399}])`
 
-## to list all documents
+## To list all documents
 
 `db.products.find()`
 will list all the documents present in `products`
@@ -35,7 +36,7 @@ will list all the documents present in `products`
 ]
 ```
 
-## to delete one record
+## To delete one record
 
 `db.flightData.deleteOne({departureAirport:"TXL"})`
 this will delete the first document where departureAirport is TXL.
@@ -43,7 +44,7 @@ this will delete the first document where departureAirport is TXL.
 `db.flightData.deleteMany({marker:"toDelete"})`
 this will delete all records where marker value is toDelete.
 
-## to update one record
+## To update one record
 
 `dv.flightData.updateOne({distance:12000},{$set:{marker:"delete"}})`
 mongdb will update the value of `marker` to `"delete"`. If `marker` field is not present, it will create a new one.
@@ -80,7 +81,7 @@ to filter by nested field condition status
 ` db.books.find({},{_id:0, book:1, price:1})`
 this will return documents with only book and price key, \_id and all other keys will be excluded.
 
-## updating nested data
+## Updating nested data
 
 `db.books.updateOne({book:"Java"},{$set:{tags:["Computer Science", "Technology"]}})`
 this will add a key `tags` which is an array of string
@@ -321,9 +322,9 @@ wtimeout is write timout
 
 will import tv-shows.json data into `moviesDatabase` database and `moviesCollection` collection. `--jsonArray` specifies that it's bulk insert of documents. `--drop` will drop an existing `moviesCollection` collection, create a new `moviesCollection` and insert in it, else data will be appended in `moviesCollection`.
 
-# Read opertions
+## Read operations
 
-## filter
+### filter
 
 `find()` and `findOne()`
 `findOne()` returns 1 document.`find()` returns cursor with multiple documents.
@@ -618,6 +619,24 @@ will remove item from `hobbies` where `title` was `Hiking`
 `db.users.updateOne({name:"John"},{$pop:{hobbies: 1}})`
 
 will remove last element from `hobbies`. If `hobbies: -1`, will remove first element from array `hobbies`
+
+## Delete operations
+
+### delete 1 collection
+`db.users.deleteOne({name:"Manual"})`
+will delete 1 record where `name` is `Manual`.
+
+### delete many collections
+`db.users.deleteMany({age:{$gt : 25}})`
+will delete every records where age > 25.
+
+### truncate collection'
+`db.users.deleteMany({})`
+
+### drop collection
+`db.users.drop()`
+
+
 
 ## index
 
